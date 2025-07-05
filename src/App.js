@@ -12,6 +12,7 @@ function App() {
   const [popup, setPopup] = useState('');
   const [page, setPage] = useState('loading');
   const [showRegister, setShowRegister] = useState(false);
+  const [userEmail, setUserEmail] = useState(''); // ✅ ADDED
 
   const showPopup = (msg) => {
     setPopup(msg);
@@ -66,8 +67,10 @@ function App() {
     });
 
     if (error) {
-      if (error.message.toLowerCase().includes('user already registered') ||
-          error.message.toLowerCase().includes('user already exists')) {
+      if (
+        error.message.toLowerCase().includes('user already registered') ||
+        error.message.toLowerCase().includes('user already exists')
+      ) {
         showPopup('⚠️ User already exists. Please log in instead.');
       } else {
         showPopup(`❌ ${error.message}`);
@@ -94,6 +97,7 @@ function App() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const userEmail = session.user.email;
+        setUserEmail(userEmail); // ✅ ADDED
         if (userEmail === 'srecadmin' || userEmail === 'itboys') {
           setPage('admin');
         } else {
@@ -109,6 +113,7 @@ function App() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         const userEmail = session.user.email;
+        setUserEmail(userEmail); // ✅ ADDED
         if (userEmail === 'srecadmin' || userEmail === 'itboys') {
           setPage('admin');
         } else {
@@ -128,7 +133,7 @@ function App() {
     return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
   }
 
-  if (page === 'voting') return <VotingBooth onLogout={handleLogout} />;
+  if (page === 'voting') return <VotingBooth user={userEmail} onLogout={handleLogout} />; // ✅ ADDED user
   if (page === 'admin') return <AdminPage onLogout={handleLogout} />;
 
   return (

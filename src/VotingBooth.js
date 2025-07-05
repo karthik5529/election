@@ -6,13 +6,13 @@ function ElectionBooth({ user, onLogout }) {
   const [votes, setVotes] = useState({});
   const [userVoted, setUserVoted] = useState(false);
   const [theme, setTheme] = useState('light');
+  const [hoverEmail, setHoverEmail] = useState(false);
 
   useEffect(() => {
     fetchUserAndCandidates();
   }, []);
 
   const fetchUserAndCandidates = async () => {
-    // ✅ Get candidates
     const { data: candidateData, error } = await supabase
       .from('profiles')
       .select('id, username, role, created_at')
@@ -25,7 +25,6 @@ function ElectionBooth({ user, onLogout }) {
 
     setCandidates(candidateData);
 
-    // ✅ Get all votes
     const { data: votesData, error: votesError } = await supabase
       .from('votes')
       .select('user_id, candidate_id');
@@ -35,14 +34,12 @@ function ElectionBooth({ user, onLogout }) {
       return;
     }
 
-    // ✅ Count votes per candidate
     const voteCountMap = {};
     votesData.forEach((vote) => {
       voteCountMap[vote.candidate_id] = (voteCountMap[vote.candidate_id] || 0) + 1;
     });
     setVotes(voteCountMap);
 
-    // ✅ Has user voted?
     const currentUserId = (await supabase.auth.getUser()).data.user.id;
     const voted = votesData.some((vote) => vote.user_id === currentUserId);
     setUserVoted(voted);
@@ -58,15 +55,12 @@ function ElectionBooth({ user, onLogout }) {
     }
 
     const { error } = await supabase.from('votes').insert([
-      {
-        user_id: currentUser.id,
-        candidate_id: candidateId,
-      },
+      { user_id: currentUser.id, candidate_id: candidateId },
     ]);
 
     if (error) {
       console.error('Error voting:', error.message);
-      alert('Voting failed. Maybe you already voted.');
+      alert('Voting failed.');
       return;
     }
 
@@ -78,68 +72,120 @@ function ElectionBooth({ user, onLogout }) {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
+  const userInitial = user ? user.charAt(0).toUpperCase() : 'U';
+
   return (
-    <div style={{ 
-      background: theme === 'light' ? '#fff' : '#222',
+    <div style={{
+      background: theme === 'light' ? '#fff' : '#121212',
       color: theme === 'light' ? '#000' : '#fff',
       minHeight: '100vh',
       padding: '20px',
       fontFamily: 'sans-serif',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.4s ease'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'
+      }}>
         <h2>SREC Election Booth</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            background: '#007bff',
-            borderRadius: '50%',
-            color: '#fff',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            textTransform: 'uppercase'
-          }}>
-            {user?.charAt(0) || 'U'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
+          <div
+            onMouseEnter={() => setHoverEmail(true)}
+            onMouseLeave={() => setHoverEmail(false)}
+            style={{
+              background: '#007bff',
+              borderRadius: '50%',
+              color: '#fff',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              cursor: 'default',
+              transition: 'transform 0.2s',
+            }}
+          >
+            {userInitial}
+            {hoverEmail && (
+              <div style={{
+                position: 'absolute',
+                top: '45px',
+                background: '#333',
+                color: '#fff',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                whiteSpace: 'nowrap',
+              }}>
+                {user}
+              </div>
+            )}
           </div>
-          <button onClick={toggleTheme}>
-            {theme === 'light' ? 'Dark' : 'Light'} Mode
+          <button onClick={toggleTheme} style={{
+            padding: '6px 12px',
+            border: 'none',
+            borderRadius: '4px',
+            background: theme === 'light' ? '#333' : '#f0f0f0',
+            color: theme === 'light' ? '#fff' : '#000',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+          }}>
+            {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
           </button>
-          <button onClick={onLogout}>Logout</button>
+          <button onClick={onLogout} style={{
+            padding: '6px 12px',
+            border: 'none',
+            borderRadius: '4px',
+            background: '#dc3545',
+            color: '#fff',
+            cursor: 'pointer',
+          }}>
+            Logout
+          </button>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '40px' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '20px',
+      }}>
         {candidates.map((candidate) => (
-          <div key={candidate.id} style={{
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            padding: '20px',
-            background: theme === 'light' ? '#f9f9f9' : '#333',
-            transition: 'all 0.3s ease'
-          }}>
+          <div
+            key={candidate.id}
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              padding: '15px',
+              background: theme === 'light' ? '#f9f9f9' : '#1e1e1e',
+              transition: 'transform 0.3s, background 0.3s',
+              cursor: userVoted ? 'default' : 'pointer',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+          >
             <img
               src={`https://picsum.photos/200?random=${candidate.id}`}
               alt="Candidate"
-              style={{ width: '100%', borderRadius: '8px' }}
+              style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }}
             />
             <h3>{candidate.username}</h3>
-            <p>Dept:IT</p>
+            <p>Dept: CSE/IT</p>
             <p>"Vote me, I uplift you!"</p>
-            <p>Votes: Revel Soon</p>
+            <p>Votes: Revealed Soon</p>
             <button
               disabled={userVoted}
               onClick={() => handleVote(candidate.id)}
               style={{
                 marginTop: '10px',
-                background: userVoted ? '#aaa' : '#28a745',
+                width: '100%',
+                background: userVoted ? '#888' : '#28a745',
                 color: '#fff',
-                padding: '10px 20px',
+                padding: '10px',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: userVoted ? 'not-allowed' : 'pointer'
+                cursor: userVoted ? 'not-allowed' : 'pointer',
+                transition: 'background 0.3s'
               }}
             >
               {userVoted ? 'Voted' : 'Vote'}
@@ -148,7 +194,9 @@ function ElectionBooth({ user, onLogout }) {
         ))}
       </div>
 
-      <p style={{ marginTop: '40px', textAlign: 'center' }}>Made by IT Boys @ SREC 2024</p>
+      <p style={{ marginTop: '40px', textAlign: 'center', fontSize: '14px', color: theme === 'light' ? '#555' : '#aaa' }}>
+        Made by IT Boys @ SREC 2024
+      </p>
     </div>
   );
 }
