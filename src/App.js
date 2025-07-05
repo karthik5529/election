@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import VotingBooth from './VotingBooth';
 import AdminPage from './AdminPage';
@@ -10,12 +10,12 @@ function App() {
   const [passwordRegister, setPasswordRegister] = useState('');
   const [usernameRegister, setUsernameRegister] = useState('');
   const [popup, setPopup] = useState('');
-  const [page, setPage] = useState('login');
+  const [page, setPage] = useState('loading');
   const [showRegister, setShowRegister] = useState(false);
 
   const showPopup = (msg) => {
     setPopup(msg);
-    setTimeout(() => setPopup(''), 4000);
+    setTimeout(() => setPopup(''), 3500);
   };
 
   const handleLogin = async (e) => {
@@ -42,13 +42,9 @@ function App() {
     });
 
     if (error) {
-  if (error.message.toLowerCase().includes('user already registered')) {
-    showPopup('⚠️ User already exists. Please log in instead.');
-  } else {
-    showPopup(`❌ Registration error: ${error.message}`);
-  }
-}
-
+      showPopup(`❌ ${error.message}`);
+    }
+    // Success: onAuthStateChange will handle redirect
   };
 
   const handleRegister = async (e) => {
@@ -65,15 +61,16 @@ function App() {
       password: passwordRegister,
       options: {
         data: { username: usernameRegister },
-        emailRedirectTo: window.location.origin, // Ensure redirect on verification
+        emailRedirectTo: window.location.origin,
       },
     });
 
     if (error) {
-      if (error.message.includes('User already registered')) {
-        showPopup('❌ User already exists with this email.');
+      if (error.message.toLowerCase().includes('user already registered') ||
+          error.message.toLowerCase().includes('user already exists')) {
+        showPopup('⚠️ User already exists. Please log in instead.');
       } else {
-        showPopup(`❌ Registration error: ${error.message}`);
+        showPopup(`❌ ${error.message}`);
       }
     } else {
       showPopup('✅ Registration successful! Please verify your email, then log in.');
@@ -87,18 +84,52 @@ function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setPage('login');
-    showPopup('Logged out successfully.');
+    showPopup('✅ Logged out.');
     setEmailLogin('');
     setPasswordLogin('');
   };
 
-  if (page === 'voting') {
-    return <VotingBooth onLogout={handleLogout} />;
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const userEmail = session.user.email;
+        if (userEmail === 'srecadmin' || userEmail === 'itboys') {
+          setPage('admin');
+        } else {
+          setPage('voting');
+        }
+      } else {
+        setPage('login');
+      }
+    };
+
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        const userEmail = session.user.email;
+        if (userEmail === 'srecadmin' || userEmail === 'itboys') {
+          setPage('admin');
+        } else {
+          setPage('voting');
+        }
+      } else {
+        setPage('login');
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (page === 'loading') {
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
   }
 
-  if (page === 'admin') {
-    return <AdminPage onLogout={handleLogout} />;
-  }
+  if (page === 'voting') return <VotingBooth onLogout={handleLogout} />;
+  if (page === 'admin') return <AdminPage onLogout={handleLogout} />;
 
   return (
     <div style={styles.container}>
