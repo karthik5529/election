@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
-
+import vijay from './vijay.jpg'
+import kathir from './kathir.webp'
+import csanjay from './csanjay.webp'
 function ElectionBooth({ user, onLogout }) {
   const [candidates, setCandidates] = useState([]);
   const [votes, setVotes] = useState({});
@@ -165,12 +167,28 @@ function ElectionBooth({ user, onLogout }) {
             onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
           >
             <img
-              src={`https://picsum.photos/200?random=${candidate.id}`}
+              src={
+              candidate.id === "8c8aef56-2013-4be7-aeb1-b600dc7ec4df" ? vijay :
+              candidate.id === "ea2afcc8-df91-404c-9a91-012309ce104e" ? kathir :
+              candidate.id === "9bba09e1-e759-4863-939b-a93b844cb094" ? csanjay :
+              ""
+              }
               alt="Candidate"
-              style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }}
+              style={{ width: '100%', height : '50%' , borderRadius: '8px', marginBottom: '10px' }}
             />
             <h3>{candidate.username}</h3>
-            <p>Dept: CSE/IT</p>
+            <p>Dept: {
+              candidate.id === "8c8aef56-2013-4be7-aeb1-b600dc7ec4df" ? "CSE" :
+              candidate.id === "ea2afcc8-df91-404c-9a91-012309ce104e" ? "IT" :
+              candidate.id === "9bba09e1-e759-4863-939b-a93b844cb094" ? "ECE" :
+              ''
+              }</p>
+               <p>Year: {
+              candidate.id === "8c8aef56-2013-4be7-aeb1-b600dc7ec4df" ? "II" :
+              candidate.id === "ea2afcc8-df91-404c-9a91-012309ce104e" ? "II" :
+              candidate.id === "9bba09e1-e759-4863-939b-a93b844cb094" ? "II" :
+              ''
+              }</p>
             <p>"Vote me, I uplift you!"</p>
             <p>Votes: Revealed Soon</p>
             <button

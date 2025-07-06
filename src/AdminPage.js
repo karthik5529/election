@@ -62,7 +62,8 @@ function AdminPage({ onLogout }) {
           </tbody>
         </table>
       )}
-      <button onClick={onLogout} style={styles.logoutButton}>Logout</button>
+      <button onClick={onLogout} style={styles.logoutButton}>Logout</button> <br/>
+      <h5>NOTE:Admins Can Only View Results If You Want To Vote<br/>Then Log In With Your Mail To Vote</h5>
       <p>Made by IT Boys @ SREC 2024</p>
     </div>
   );
@@ -77,8 +78,7 @@ const styles = {
     fontFamily: 'sans-serif',
     background: '#f9f9f9',
     borderRadius: '8px',
-    boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-  },
+    boxShadow: '0 0 8px rgba(0,0,0,0.1)',  },
   table: {
     width: '100%',
     borderCollapse: 'collapse',

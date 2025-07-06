@@ -31,10 +31,7 @@ function App() {
       return;
     }
 
-    if (!emailLogin.endsWith('@srec.ac.in')) {
-      showPopup('❌ Only @srec.ac.in emails allowed for login.');
-      return;
-    }
+    
 
     showPopup('Logging in...');
     const { error } = await supabase.auth.signInWithPassword({
@@ -51,10 +48,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!emailRegister.endsWith('@srec.ac.in')) {
-      showPopup('❌ Only @srec.ac.in emails allowed for registration.');
-      return;
-    }
+   
 
     showPopup('Registering...');
     const { data, error } = await supabase.auth.signUp({
@@ -188,7 +182,7 @@ function App() {
               />
               <input
                 type="email"
-                placeholder="Email (@srec.ac.in)"
+                placeholder="Email (abc@mail)"
                 value={emailRegister}
                 onChange={(e) => setEmailRegister(e.target.value)}
                 required
