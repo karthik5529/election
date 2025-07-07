@@ -5,7 +5,7 @@ import kathir from './kathir.webp'
 import csanjay from './csanjay.webp'
 function ElectionBooth({ user, onLogout }) {
   const [candidates, setCandidates] = useState([]);
-  const [, setVotes] = useState({});
+  const [votes, setVotes] = useState({});
   const [userVoted, setUserVoted] = useState(false);
   const [theme, setTheme] = useState('light');
   const [hoverEmail, setHoverEmail] = useState(false);

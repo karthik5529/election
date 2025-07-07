@@ -41,7 +41,7 @@ function AdminPage({ onLogout }) {
 
   useEffect(() => {
     fetchCandidates();
-  }, [fetchCandidates]);
+  }, []);
 
   return (
     <div style={{...styles.container, background: theme === 'light' ? '#f9f9f9' : '#121212',
