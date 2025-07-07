@@ -85,6 +85,15 @@ function App() {
     setEmailLogin('');
     setPasswordLogin('');
   };
+  const handleGoogleSignIn = async () => {
+  showPopup('Redirecting to Google...');
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  });
+  if (error) {
+    showPopup(`❌ ${error.message}`);
+  }
+};
 
   useEffect(() => {
     const checkSession = async () => {
@@ -152,6 +161,13 @@ function App() {
             style={styles.input}
           />
           <button type="submit" style={styles.button}>Login</button>
+          <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          style={{ ...styles.button, background: '#db4437', marginTop: '10px' }}
+          >
+          Sign in with Google
+          </button>
         </form>
         <p>
           Don't have an account?{' '}

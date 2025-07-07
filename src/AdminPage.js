@@ -4,6 +4,11 @@ import { supabase } from './supabaseClient';
 function AdminPage({ onLogout }) {
   const [candidates, setCandidates] = useState([]);
   const [votes, setVotes] = useState({});
+  const [theme, setTheme] = useState('light');
+
+  const toggleTheme = () => {
+  setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   const fetchCandidates = async () => {
     const { data, error } = await supabase
@@ -39,8 +44,27 @@ function AdminPage({ onLogout }) {
   }, []);
 
   return (
-    <div style={styles.container}>
+    <div style={{...styles.container, background: theme === 'light' ? '#f9f9f9' : '#121212',
+    color: theme === 'light' ? '#000000' : '#ffffff',
+    transition: 'background 0.3s, color 0.3s',}}>
       <h2>Admin Dashboard</h2>
+      <center>
+  <button
+    onClick={toggleTheme}
+    style={{
+      margin: '10px',
+      padding: '8px 16px',
+      backgroundColor: theme === 'light' ? '#007bff' : '#bb86fc',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    }}
+  >
+    Toggle {theme === 'light' ? 'Dark' : 'Light'} Theme
+  </button>
+  </center>
+
       <h3>Live Vote Results</h3>
       {candidates.length === 0 ? (
         <p>No candidates found.</p>
