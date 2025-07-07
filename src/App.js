@@ -51,7 +51,7 @@ function App() {
    
 
     showPopup('Registering...');
-    const { data, error } = await supabase.auth.signUp({
+    const {  error } = await supabase.auth.signUp({
       email: emailRegister,
       password: passwordRegister,
       options: {
