@@ -13,7 +13,6 @@ function App() {
   const [page, setPage] = useState('loading');
   const [showRegister, setShowRegister] = useState(false);
   const [userEmail, setUserEmail] = useState(''); // ✅ ADDED
-  alert("UPDATE SUCCESS!!")
   const showPopup = (msg) => {
     setPopup(msg);
     setTimeout(() => setPopup(''), 3500);
@@ -99,6 +98,7 @@ useEffect(() => {
     // ✅ ADD THIS to handle the OAuth redirect on GitHub Pages
     const handleOAuthRedirect = async () => {
     const { error } = await supabase.auth.getSessionFromUrl();
+    console.log('Handling OAuth redirect...')
     if (error) {
         console.error('OAuth redirect error:', error);
         showPopup(`❌ OAuth error: ${error.message}`);
