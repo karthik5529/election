@@ -13,7 +13,7 @@ function App() {
   const [page, setPage] = useState('loading');
   const [showRegister, setShowRegister] = useState(false);
   const [userEmail, setUserEmail] = useState(''); // ✅ ADDED
-
+  alert("UPDATE SUCCESS!!")
   const showPopup = (msg) => {
     setPopup(msg);
     setTimeout(() => setPopup(''), 3500);
@@ -95,42 +95,58 @@ function App() {
   }
 };
 
-  useEffect(() => {
+useEffect(() => {
+    // ✅ ADD THIS to handle the OAuth redirect on GitHub Pages
+    const handleOAuthRedirect = async () => {
+    const { error } = await supabase.auth.getSessionFromUrl();
+    if (error) {
+        console.error('OAuth redirect error:', error);
+        showPopup(`❌ OAuth error: ${error.message}`);
+    } else {
+        showPopup('✅ Google sign-in successful!');
+        window.location.hash = '';
+    }
+};
+
+
+    handleOAuthRedirect(); // ✅ call it once on load
+
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const userEmail = session.user.email;
-        setUserEmail(userEmail); // ✅ ADDED
-        if (userEmail === 'srecadmin' || userEmail === 'itboys') {
-          setPage('admin');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            const userEmail = session.user.email;
+            setUserEmail(userEmail);
+            if (userEmail === 'srecadmin' || userEmail === 'itboys') {
+                setPage('admin');
+            } else {
+                setPage('voting');
+            }
         } else {
-          setPage('voting');
+            setPage('login');
         }
-      } else {
-        setPage('login');
-      }
     };
 
     checkSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        const userEmail = session.user.email;
-        setUserEmail(userEmail); // ✅ ADDED
-        if (userEmail === 'srecadmin' || userEmail === 'itboys') {
-          setPage('admin');
+        if (session) {
+            const userEmail = session.user.email;
+            setUserEmail(userEmail);
+            if (userEmail === 'srecadmin' || userEmail === 'itboys') {
+                setPage('admin');
+            } else {
+                setPage('voting');
+            }
         } else {
-          setPage('voting');
+            setPage('login');
         }
-      } else {
-        setPage('login');
-      }
     });
 
     return () => {
-      authListener.subscription.unsubscribe();
+        authListener.subscription.unsubscribe();
     };
-  }, []);
+}, []);
+
 
   if (page === 'loading') {
     return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
