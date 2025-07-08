@@ -4,6 +4,7 @@ import VotingBooth from './VotingBooth';
 import AdminPage from './AdminPage';
 
 function App() {
+  console.log("UPDATE");
   const [emailLogin, setEmailLogin] = useState('');
   const [passwordLogin, setPasswordLogin] = useState('');
   const [emailRegister, setEmailRegister] = useState('');
@@ -88,11 +89,15 @@ function App() {
   showPopup('Redirecting to Google...');
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
+    options: {
+      redirectTo: 'https://karthik5529.github.io/election/'
+    }
   });
   if (error) {
     showPopup(`❌ ${error.message}`);
   }
 };
+
 
 useEffect(() => {
     // ✅ ADD THIS to handle the OAuth redirect on GitHub Pages
